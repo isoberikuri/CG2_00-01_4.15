@@ -1,5 +1,7 @@
 #include <Windows.h>
 #include <cstdint>
+#include <string>
+#include <format>
 
 //ウィンドウプロシージャ
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -17,9 +19,68 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
+void Log(const std::string& message)
+{
+	OutputDebugStringA(message.c_str());
+}
+
+//string->wstring
+std::wstring ConvertString(const std::string& str)
+{
+	if (str.empty())
+	{
+		return std::wstring();
+	}
+	auto sizeNeebed = 
+	MultiByteToWideChar
+	(
+		CP_UTF8, 0, reinterpret_cast<const char*>(&str[0]),
+		static_cast<int>(str.size()), NULL, 0
+	);
+	if (sizeNeebed == 0)
+	{
+		return std::wstring();
+	}
+	std::wstring result(sizeNeebed, 0);
+	MultiByteToWideChar
+	(
+		CP_UTF8, 0, reinterpret_cast<const char*>(&str[0]),
+		static_cast<int>(str.size()), &result[0], sizeNeebed
+	);
+	return result;
+}
+//wstring->string
+std::string ConvertString(const std::wstring& str)
+{
+	if (str.empty())
+	{
+		return std::string();
+	}
+	auto sizeNeebed =
+	WideCharToMultiByte
+	(
+		CP_UTF8, 0, str.data(),static_cast<int>(str.size()),
+		NULL, 0, NULL, NULL
+	);
+	if (sizeNeebed == 0)
+	{
+		return std::string();
+	}
+	std::string result(sizeNeebed, 0);
+	WideCharToMultiByte
+	(
+		CP_UTF8, 0, str.data(),static_cast<int>(str.size()),
+		result.data(), sizeNeebed, NULL, NULL
+	);
+	return result;
+}
+
+
 //ウィンメイン
+//Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
+
 	//出力ウィンドウへの文字入力
 	OutputDebugStringA("Hell,DirectX!\n");
 
@@ -81,6 +142,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//ゲームの処理
 		}
 	}
+
+	Log(ConvertString(std::format(L"WSTRING{}\n", L"abc")));
 
 	return 0;
 }
