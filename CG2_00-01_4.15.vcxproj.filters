@@ -75,5 +75,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj.filters" />
+    <None Include="Object3d.hlsli" />
   </ItemGroup>
 </Project>
