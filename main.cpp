@@ -1233,7 +1233,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Transform transform{
 	  {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 	Transform cameraTransform{
-		{1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -15.0f} };
+		{1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -5.0f} };
 
 
 	//ImGuiの初期化。詳細はさして重要ではないので解説は省略する。
@@ -1387,6 +1387,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			ImGui::Begin("Settings");
 			ImGui::ColorEdit4("material", &materialData->x, ImGuiColorEditFlags_AlphaPreview);//RGBWの指定
 			ImGui::DragFloat("rotate.y", &transform.rotate.y, 0.1f);
+			ImGui::DragFloat3("transform", &transform.translate.x, 0.1f);
+			ImGui::DragFloat2("Sprite transform", &transformSprite.translate.x, 1.0f);
 			ImGui::End();
 
 
@@ -1453,21 +1455,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			commandList->IASetIndexBuffer(&indexBufferViewSprite);//IBNを設定
 
 			//描画!(DrawCall/ドローコル）。３頂点で一つのインスタンス。インスタンスについては今後
-			//commandList->DrawInstanced(6, 1, 0, 0);
+			commandList->DrawInstanced(6, 1, 0, 0);
 
 			//モデル描画
 			commandList->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
 
 			//--------------------------------------
 
-			////Spriteの描画。変更が必要なものだけ変更
-			//commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);
-			////TransformationMatrixCBufferの場所を設定
-			//commandList->SetGraphicsRootConstantBufferView(1, transformtionMatirxResourceSprite->GetGPUVirtualAddress());
-			////描画！（DrawInstanced(DrawCall/ドローコル）
-			////commandList->DrawInstanced(6, 1, 0, 0);
-			////描画!(DrawCall/ドローコル）６個のインデックスを使用し１つのインスタンスを描画。その他は当面０で良い
-			//commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
+			//Spriteの描画。変更が必要なものだけ変更
+			commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);
+			//TransformationMatrixCBufferの場所を設定
+			commandList->SetGraphicsRootConstantBufferView(1, transformtionMatirxResourceSprite->GetGPUVirtualAddress());
+			//描画！（DrawInstanced(DrawCall/ドローコル）
+			commandList->DrawInstanced(6, 1, 0, 0);
+			//描画!(DrawCall/ドローコル）６個のインデックスを使用し１つのインスタンスを描画。その他は当面０で良い
+			commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
 
 
 
